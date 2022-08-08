@@ -11,6 +11,7 @@ const Config = require("../config/config");
 const ProvinceRepository = require("./province.repository");
 const RegencyRepository = require("./regency.repository");
 const DistrictRepository = require("./district.repository");
+const PeopleDto = require('../model/dto/people.dto');
 
 const PeopleRepository = (db) => {
     const add = async (newPeople) => {
@@ -36,53 +37,7 @@ const PeopleRepository = (db) => {
             const rgc = await isRegencyExist(result.rows[0].regency_id);
             const dist = await isDistrictExist(result.rows[0].district_id);
             if (prov || rgc || dist) {
-                const people = {
-                    id: result.rows[0].id,
-                    nik: result.rows[0].nik,
-                    name: result.rows[0].name,
-                    gender: result.rows[0].gender,
-                    dob: result.rows[0].dob,
-                    pob: result.rows[0].pob,
-                    province: {
-                      id: prov.id,
-                      name: prov.name,
-                      createdAt: prov.createdAt,
-                      updatedAt: prov.updatedAt,
-                    },
-                    regency: {
-                        id: rgc.id,
-                        name: rgc.name,
-                        province: {
-                            id: prov.id,
-                            name: prov.name,
-                            createdAt: prov.createdAt,
-                            updatedAt: prov.updatedAt,
-                        },
-                        createdAt: rgc.createdAt,
-                        updatedAt: rgc.updatedAt,
-                    },
-                    district: {
-                        id: dist.id,
-                        name: dist.name,
-                        regency: {
-                            id: rgc.id,
-                            name: rgc.name,
-                            province: {
-                                id: prov.id,
-                                name: prov.name,
-                                createdAt: prov.createdAt,
-                                updatedAt: prov.updatedAt,
-                            },
-                            createdAt: prov.createdAt,
-                            updatedAt: prov.updatedAt,
-                        },
-                        createdAt: dist.createdAt,
-                        updatedAt: dist.updatedAt,
-                    },
-                    createdAt: result.rows[0].created_at,
-                    updatedAt: result.rows[0].updated_at,
-                }
-                return people;
+                return PeopleDto().createUpdate(result, 0, prov, rgc, dist);
             }
         } catch (err) {
             console.log(err)
@@ -95,52 +50,7 @@ const PeopleRepository = (db) => {
             const result = await db.query(READ_ALL_PEOPLE);
             const people = [];
             for (let i = 0;i < result.rows.length; i++) {
-                people.push({
-                    id: result.rows[i].id,
-                    name: result.rows[i].name,
-                    nik: result.rows[i].nik,
-                    gender: result.rows[i].gender,
-                    dob: result.rows[i].dob,
-                    pob: result.rows[i].pob,
-                    province: {
-                        id: result.rows[i].provinceid,
-                        name: result.rows[i].provincename,
-                        createdAt: result.rows[i].prcreatedat,
-                        updatedAt: result.rows[i].prupdatedat,
-                    },
-                    regency: {
-                        id: result.rows[i].regencyid,
-                        name: result.rows[i].regencyname,
-                        province: {
-                            id: result.rows[i].provinceid,
-                            name: result.rows[i].provincename,
-                            createdAt: result.rows[i].prcreatedat,
-                            updatedAt: result.rows[i].prupdatedat,
-                        },
-                        createdAt: result.rows[i].recreatedat,
-                        updatedAt: result.rows[i].reupdatedat,
-                    },
-                    district: {
-                        id: result.rows[i].regencyid,
-                        name: result.rows[i].regencyname,
-                        regency: {
-                            id: result.rows[i].regencyid,
-                            name: result.rows[i].regencyname,
-                            province: {
-                                id: result.rows[i].provinceid,
-                                name: result.rows[i].provincename,
-                                createdAt: result.rows[i].prcreatedat,
-                                updatedAt: result.rows[i].prupdatedat,
-                            },
-                            createdAt: result.rows[i].recreatedat,
-                            updatedAt: result.rows[i].reupdatedat,
-                        },
-                        createdAt: result.rows[i].dicreatedat,
-                        updatedAt: result.rows[i].diupdatedat,
-                    },
-                    createdAt: result.rows[i].created_at,
-                    updatedAt: result.rows[i].updated_at,
-                });
+                people.push(PeopleDto().getList(result, i));
             }
             return people;
         } catch (err) {
@@ -154,53 +64,7 @@ const PeopleRepository = (db) => {
             if (result.rows.length === 0) {
                 return `ID with ${id} not found`;
             }
-            const person = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                nik: result.rows[0].nik,
-                gender: result.rows[0].gender,
-                dob: result.rows[0].dob,
-                pob: result.rows[0].pob,
-                province: {
-                    id: result.rows[0].provinceid,
-                    name: result.rows[0].provincename,
-                    createdAt: result.rows[0].prcreatedat,
-                    updatedAt: result.rows[0].prupdatedat,
-                },
-                regency: {
-                    id: result.rows[0].regencyid,
-                    name: result.rows[0].regencyname,
-                    province: {
-                        id: result.rows[0].provinceid,
-                        name: result.rows[0].provincename,
-                        createdAt: result.rows[0].prcreatedat,
-                        updatedAt: result.rows[0].prupdatedat,
-                    },
-                    createdAt: result.rows[0].recreatedat,
-                    updatedAt: result.rows[0].reupdatedat,
-                },
-                district: {
-                    id: result.rows[0].regencyid,
-                    name: result.rows[0].regencyname,
-                    regency: {
-                        id: result.rows[0].regencyid,
-                        name: result.rows[0].regencyname,
-                        province: {
-                            id: result.rows[0].provinceid,
-                            name: result.rows[0].provincename,
-                            createdAt: result.rows[0].prcreatedat,
-                            updatedAt: result.rows[0].prupdatedat,
-                        },
-                        createdAt: result.rows[0].recreatedat,
-                        updatedAt: result.rows[0].reupdatedat,
-                    },
-                    createdAt: result.rows[0].dicreatedat,
-                    updatedAt: result.rows[0].diupdatedat,
-                },
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return person;
+            return PeopleDto().getList(result, 0);
         } catch (err) {
             return err.message
         }
@@ -212,53 +76,7 @@ const PeopleRepository = (db) => {
             if (result.rows.length === 0) {
                 return `NIK with ${nik} not found`;
             }
-            const person = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                nik: result.rows[0].nik,
-                gender: result.rows[0].gender,
-                dob: result.rows[0].dob,
-                pob: result.rows[0].pob,
-                province: {
-                    id: result.rows[0].provinceid,
-                    name: result.rows[0].provincename,
-                    createdAt: result.rows[0].prcreatedat,
-                    updatedAt: result.rows[0].prupdatedat,
-                },
-                regency: {
-                    id: result.rows[0].regencyid,
-                    name: result.rows[0].regencyname,
-                    province: {
-                        id: result.rows[0].provinceid,
-                        name: result.rows[0].provincename,
-                        createdAt: result.rows[0].prcreatedat,
-                        updatedAt: result.rows[0].prupdatedat,
-                    },
-                    createdAt: result.rows[0].recreatedat,
-                    updatedAt: result.rows[0].reupdatedat,
-                },
-                district: {
-                    id: result.rows[0].regencyid,
-                    name: result.rows[0].regencyname,
-                    regency: {
-                        id: result.rows[0].regencyid,
-                        name: result.rows[0].regencyname,
-                        province: {
-                            id: result.rows[0].provinceid,
-                            name: result.rows[0].provincename,
-                            createdAt: result.rows[0].prcreatedat,
-                            updatedAt: result.rows[0].prupdatedat,
-                        },
-                        createdAt: result.rows[0].recreatedat,
-                        updatedAt: result.rows[0].reupdatedat,
-                    },
-                    createdAt: result.rows[0].dicreatedat,
-                    updatedAt: result.rows[0].diupdatedat,
-                },
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return person;
+            return PeopleDto().getList(result, 0);;
         } catch (err) {
             return err.message
         }

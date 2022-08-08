@@ -5,11 +5,12 @@ const {
     UPDATE_DISTRICT,
     READ_ALL_DISTRICT,
     DELETE_DISTRICT} = require('../utils/query');
-const RegencyService = require("../service/regency.service");
-const ProvinceService = require("../service/province.service");
-const Config = require("../config/config");
-const RegencyRepository = require("./regency.repository");
-const ProvinceRepository = require("./province.repository");
+const RegencyService = require('../service/regency.service');
+const ProvinceService = require('../service/province.service');
+const Config = require('../config/config');
+const RegencyRepository = require('./regency.repository');
+const ProvinceRepository = require('./province.repository');
+const DistrictDto = require('../model/dto/district.dto');
 
 const DistrictRepository = (db) => {
     const add = async (newDistrict) => {
@@ -23,25 +24,7 @@ const DistrictRepository = (db) => {
             const regencyOfAdd = await isRegencyExist(result.rows[0].regency_id);
             const provOfAdd = await isProvinceExist(regencyOfAdd.province.id);
             if (regencyOfAdd) {
-                const regency = {
-                    id: result.rows[0].id,
-                    name: result.rows[0].name,
-                    regency: {
-                        id: regencyOfAdd.id,
-                        name: regencyOfAdd.name,
-                        province: {
-                            id: provOfAdd.id,
-                            name: provOfAdd.name,
-                            createdAt: provOfAdd.createdAt,
-                            updatedAt: provOfAdd.updatedAt,
-                        },
-                        createdAt: regencyOfAdd.createdAt,
-                        updatedAt: regencyOfAdd.updatedAt,
-                    },
-                    createdAt: result.rows[0].created_at,
-                    updatedAt: result.rows[0].updated_at,
-                }
-                return regency;
+                return DistrictDto().createUpdate(result, regencyOfAdd, provOfAdd);
             }
         } catch (err) {
             return err.message
@@ -53,24 +36,7 @@ const DistrictRepository = (db) => {
             const result = await db.query(READ_ALL_DISTRICT);
             const districts = [];
             for (let i = 0;i < result.rows.length; i++) {
-                districts.push({
-                    id: result.rows[i].id,
-                    name: result.rows[i].name,
-                    regency: {
-                        id: result.rows[i].regencyid,
-                        name: result.rows[i].regencyname,
-                        province: {
-                            id: result.rows[i].provinceid,
-                            name: result.rows[i].provincename,
-                            createdAt: result.rows[i].pcreatedat,
-                            updatedAt: result.rows[i].pupdatedat,
-                        },
-                        createdAt: result.rows[i].createdat,
-                        updatedAt: result.rows[i].updatedat,
-                    },
-                    createdAt: result.rows[i].created_at,
-                    updatedAt: result.rows[i].updated_at,
-                });
+                districts.push(DistrictDto().getList(result, i));
             }
             return districts;
         } catch (err) {
@@ -84,25 +50,7 @@ const DistrictRepository = (db) => {
             if (result.rows.length === 0) {
                 return `ID with ${id} not found`;
             }
-            const regency = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                regency: {
-                    id: result.rows[0].regencyid,
-                    name: result.rows[0].regencyname,
-                    province: {
-                        id: result.rows[0].provinceid,
-                        name: result.rows[0].provincename,
-                        createdAt: result.rows[0].pcreatedat,
-                        updatedAt: result.rows[0].pupdatedat,
-                    },
-                    createdAt: result.rows[0].createdat,
-                    updatedAt: result.rows[0].updatedat,
-                },
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return regency;
+            return DistrictDto().getList(result, 0);
         } catch (err) {
             return err.message
         }
@@ -119,25 +67,7 @@ const DistrictRepository = (db) => {
             const regencyOfUpdate= await isRegencyExist(result.rows[0].regency_id);
             const provOfAdd = await isProvinceExist(regencyOfUpdate.province.id);
             if (regencyOfUpdate) {
-                const regency = {
-                    id: result.rows[0].id,
-                    name: result.rows[0].name,
-                    regency: {
-                        id: regencyOfUpdate.id,
-                        name: regencyOfUpdate.name,
-                        province: {
-                            id: provOfAdd.id,
-                            name: provOfAdd.name,
-                            createdAt: provOfAdd.createdAt,
-                            updatedAt: provOfAdd.updatedAt,
-                        },
-                        createdAt: regencyOfUpdate.createdAt,
-                        updatedAt: regencyOfUpdate.updatedAt,
-                    },
-                    createdAt: result.rows[0].created_at,
-                    updatedAt: result.rows[0].updated_at,
-                }
-                return regency;
+                return DistrictDto().createUpdate(result, regencyOfUpdate, provOfAdd);;
             }
         } catch (err) {
             return err.message

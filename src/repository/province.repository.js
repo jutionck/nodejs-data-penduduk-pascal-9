@@ -5,6 +5,7 @@ const {
     UPDATE_PROVINCE,
     READ_ALL_PROVINCE,
     DELETE_PROVINCE} = require('../utils/query');
+const ProvinceDto = require("../model/dto/province.dto");
 
 const ProvinceRepository = (db) => {
     const add = async (newProvince) => {
@@ -15,13 +16,7 @@ const ProvinceRepository = (db) => {
             }
             const newDate = new Date();
             const result = await db.query(CREATE_PROVINCE, [newProvince.id,newProvince.name,newDate]);
-            const province = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return province;
+            return ProvinceDto().createUpdate(result, 0);
         } catch (err) {
             return err.message
         }
@@ -32,12 +27,7 @@ const ProvinceRepository = (db) => {
             const result = await db.query(READ_ALL_PROVINCE);
             const provinces = [];
             for (let i = 0;i < result.rows.length; i++) {
-                provinces.push({
-                    id: result.rows[i].id,
-                    name: result.rows[i].name,
-                    createdAt: result.rows[i].created_at,
-                    updatedAt: result.rows[i].updated_at,
-                });
+                provinces.push(ProvinceDto().getList(result, i));
             }
             return provinces;
         } catch (err) {
@@ -51,13 +41,7 @@ const ProvinceRepository = (db) => {
             if (result.rows.length === 0) {
                 return `ID with ${id} not found`;
             }
-            const province = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return province;
+            return ProvinceDto().getList(result, 0);
         } catch (err) {
             return err.message
         }
@@ -71,13 +55,7 @@ const ProvinceRepository = (db) => {
             }
             const newDate = new Date();
             const result = await db.query(UPDATE_PROVINCE, [updateProvince.name, newDate, updateProvince.id]);
-            const province = {
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                createdAt: result.rows[0].created_at,
-                updatedAt: result.rows[0].updated_at,
-            }
-            return province;
+            return ProvinceDto().createUpdate(result, 0);;
         } catch (err) {
             return err.message
         }
