@@ -1,6 +1,10 @@
 const { Pool } = require('pg');
+const dotenv = require('dotenv');
 
-const connectionString = 'postgresql://jutioncandrakirana:@localhost:5432/db_population'
+dotenv.config();
+const { DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, DB_DRIVER } = process.env;
+
+const connectionString = `${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`
 const Config = new Pool({
     connectionString,
 })

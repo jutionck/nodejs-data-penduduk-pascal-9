@@ -1,16 +1,18 @@
 const http = require('http');
 const Routes = require('./index');
-const port = 8181;
+const dotenv = require('dotenv');
+const { APP_PORT } = process.env;
 
 const Server = () => {
+    dotenv.config()
     const run = () => {
         const server = http.createServer((request, response) => {
             response.setHeader('Content-Type', 'application/json');
             Routes(request, response);
         });
 
-        server.listen(port, () => {
-            console.log(`Server running on port ${port}`);
+        server.listen(`${APP_PORT}`, () => {
+            console.log(`Server running on port ${APP_PORT}`);
         })
     }
 
